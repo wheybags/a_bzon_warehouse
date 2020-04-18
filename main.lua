@@ -1,3 +1,5 @@
+local render = require("render")
+
 local state
 
 local music
@@ -13,6 +15,8 @@ end
 
 
 local setup = function()
+  render.setup()
+
   --music = love.audio.newSource("/sfx/2019-12-09_-_Retro_Forest_-_David_Fesliyan.mp3", "stream")
   --music:setLooping(true)
   --
@@ -24,7 +28,7 @@ function love.load()
 end
 
 function love.draw()
-
+  render.draw()
 end
 
 function love.resize()

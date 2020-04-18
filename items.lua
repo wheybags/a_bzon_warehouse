@@ -79,4 +79,12 @@ items.items =
   }
 }
 
+items.positions =
+{
+  tools = {big = {0, 0}, small = {0, 1}},
+  electronics = {computer = {1, 0}, phone = {1, 1}},
+  kitchen = {utensils = {0, 2}, appliances = {0, 3}},
+  medical = {drugs = {1, 2}, equipment = {1, 3}},
+}
+
 return items
