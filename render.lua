@@ -13,6 +13,7 @@ render.setup = function()
   end
 
   render.font = love.graphics.newFont("gfx/Kenney Future Narrow.ttf", constants.font_size)
+  render.font_big = love.graphics.newFont("gfx/Kenney Future Narrow.ttf", constants.big_font_size)
   love.graphics.setFont(render.font)
 end
 
@@ -151,8 +152,14 @@ render._draw_gui = function(state)
 
   local items_lookup = simulation.get_all_items_dict()
   local item_code = items_lookup[state.request].item_code
+
+  love.graphics.setColor(0,0,0)
+  if not state.delivered and (state.tick % 60) > 30 then
+    love.graphics.setColor(0.4,0.4,0.4)
+  end
   love.graphics.rectangle("fill", left + 0.5 * constants.tile_size, y, constants.tile_size, constants.tile_size)
 
+  love.graphics.setColor(1,1,1)
   render._draw_icon(item_code, {left + 0.5 * constants.tile_size, y})
   y = y + constants.tile_size
 
@@ -219,7 +226,7 @@ render._draw_inter_day = function(state)
     render_text_in_tile_centre("insert logo here", render._tile_to_screen_coord({6,2}))
 
     notice_str =
-      "Congratulations $name!\n\n" ..
+      "Congratulations Applicant!\n\n" ..
       "Your application has been accepted by the illustrious Bzon corporation of America!\n" ..
       "You will be joining the team as a logistics services operator.\n" ..
       "Please present yourself immediately for labour assignment\n" ..
@@ -228,18 +235,20 @@ render._draw_inter_day = function(state)
       "Keep those shareholder returns alive!\n" ..
       "Geoff Bzon, CEO"
   else
-    local money_str = string.format("Bank old: %s\nPay today: %s\nPay docked:%s\nRent: %s\n\nBank new: %s",
+    local money_str = string.format("Day: %s\nBank old: %s\nPay today: %s\nPay docked:%s\nRent: %s\n\nTotal Diff: %s\nBank new: %s",
+      state.day,
       render._cents_to_money_str(state.money),
       render._cents_to_money_str(state.money_today),
       render._cents_to_money_str(state.dock_today),
       render._cents_to_money_str(-constants.rent),
+      render._cents_to_money_str(state.money_today + state.dock_today - constants.rent),
       render._cents_to_money_str(state.money + state.money_today + state.dock_today - constants.rent))
 
     render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,2}))
   end
 
   if bankrupt then
-    notice_str = notice_str .. "You are bankrupt. Game over. But don't worry, the shareholder returns are just fine!\n\n"
+    notice_str = notice_str .. "You are bankrupt. Game over.\nBut don't worry, the shareholder returns are just fine!\n\n"
   end
 
   if state.pee_time_remaining == 0 then
@@ -293,23 +302,44 @@ render.draw = function(state)
   love.graphics.rectangle("line", player_pos[1], player_pos[2], constants.tile_size, constants.tile_size)
 
 
-  if state.in_toilet > 0 then
-    return
+  if state.in_toilet == 0 then
+    local next_options = simulation.get_path_next_options(player_path)
+
+
+    if simulation.get_item(player_path) then
+      render_option(state, "deliver", render._tile_to_screen_coord({5,9}))
+    else
+      for _, option in pairs(next_options) do
+        local option_path = {unpack(player_path)}
+        table.insert(option_path, option)
+
+        local option_pos = render._path_to_screen_coord(option_path, items.label_positions)
+        render_option(state, option, option_pos)
+      end
+    end
   end
 
-  local next_options = simulation.get_path_next_options(player_path)
+  if state.error_ticks > 0 then
+    local alpha = (state.error_ticks / constants.error_display_ticks) / 2
 
+    love.graphics.setColor(1,0,0,alpha)
+    love.graphics.rectangle("fill", 0, 0, constants.screen_width, constants.screen_height)
 
-  if simulation.get_item(player_path) then
-    render_option(state, "deliver", render._tile_to_screen_coord({5,9}))
-  else
-    for _, option in pairs(next_options) do
-      local option_path = {unpack(player_path)}
-      table.insert(option_path, option)
+    love.graphics.setColor(1,1,1,alpha*2)
 
-      local option_pos = render._path_to_screen_coord(option_path, items.label_positions)
-      render_option(state, option, option_pos)
+    local text = love.graphics.newText(render.font_big, state.error_text)
+    local x = constants.screen_width/2 + - text:getWidth()/2
+    local y = constants.screen_height/2 - text:getHeight()/2 - constants.big_font_size / 2
+    love.graphics.draw(text, x, y)
+
+    if state.error_dock > 0 then
+      text = love.graphics.newText(render.font_big, render._cents_to_money_str(state.error_dock))
+      x = constants.screen_width/2 + - text:getWidth()/2
+      y = constants.screen_height/2 - text:getHeight()/2 + constants.big_font_size / 2
+      love.graphics.draw(text, x, y)
     end
+
+    love.graphics.setColor(1,1,1,1)
   end
 
 end

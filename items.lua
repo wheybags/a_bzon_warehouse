@@ -111,7 +111,7 @@ items.items_list =
             {name="stetho_scope", children={}, item_code=110},
             {name="crutch", children={}, item_code=113},
             {name="first_aid", children={}, item_code=102},
-            {name="syringe", children={}, item_code=93},
+            {name="needle", children={}, item_code=93},
           },
         },
       },

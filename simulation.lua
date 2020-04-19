@@ -10,7 +10,7 @@ simulation.create_state = function()
   return
   {
     request = 'pick_axe',
-    request_time_remaining = 60 * 20,
+    request_time_remaining = 60 * 60,
     in_day = false,
     day = 0,
     day_time_remaining = constants.day_length_ticks,
@@ -21,6 +21,11 @@ simulation.create_state = function()
     money_today = 0,
     dock_today = 0,
     tick = 1,
+    delivered = false,
+
+    error_text = '',
+    error_dock = 0,
+    error_ticks = 0,
   }
 end
 
@@ -109,16 +114,19 @@ simulation.generate_new_request = function(state)
   state.request_time_remaining = math.floor(math.random(5, 10) * 60)
 end
 
-simulation._on_error = function(state)
-
+simulation._on_error = function(state, message, dock)
+  state.error_text = message
+  state.error_dock = dock
+  state.error_ticks = constants.error_display_ticks
 end
 
 simulation._deliver_item = function(state, item)
   if state.request == item then
     state.money_today = state.money_today + constants.item_pay
+    state.delivered = true
     simulation.generate_new_request(state)
   else
-    simulation._on_error(state)
+    simulation._on_error(state, "Wrong item", -constants.wrong_item_dock)
     state.dock_today = state.dock_today - constants.wrong_item_dock
   end
 
@@ -139,9 +147,11 @@ simulation.keypress = function(state, key)
       end
     else
       if key == 'b' then
-        if state.day ~= 1 then
+        if state.day ~= 0 then
           state.money = state.money + state.money_today + state.dock_today - constants.rent
           simulation.generate_new_request(state)
+
+          state.day_time_remaining = constants.day_length_ticks
         end
 
         state.in_toilet = 0
@@ -150,7 +160,9 @@ simulation.keypress = function(state, key)
         state.day = state.day + 1
         state.money_today = 0
         state.dock_today = 0
-        state.day_time_remaining = constants.day_length_ticks
+        state.error_dock = 0
+        state.error_text = ''
+        state.error_ticks = 0
       end
     end
 
@@ -184,23 +196,20 @@ simulation.keypress = function(state, key)
     end
   end
 
-  if new_position == '' then
-    simulation._on_error(state)
-  end
-
   state.position_str = new_position
 end
 
 simulation.update = function(state)
+  state.tick = state.tick + 1
+
+
   if not state.in_day then
     return
   end
 
-  state.tick = state.tick + 1
-
   state.request_time_remaining = state.request_time_remaining - 1
   if state.request_time_remaining == 0 then
-    simulation._on_error(state)
+    simulation._on_error(state, "too late", -constants.missed_item_dock)
     state.dock_today = state.dock_today - constants.missed_item_dock
 
     simulation.generate_new_request(state)
@@ -214,6 +223,10 @@ simulation.update = function(state)
   if state.pee_time_remaining == 0 then
     state.in_day = false
     state.dock_today = state.dock_today - constants.pee_dock
+  end
+
+  if state.error_ticks > 0 then
+    state.error_ticks = state.error_ticks - 1
   end
 
   state.day_time_remaining = state.day_time_remaining - 1
