@@ -21,6 +21,7 @@ simulation.create_state = function()
     request = 'pick_axe',
     request_time_remaining = 60 * 60,
     in_day = false,
+    stopped_tick = 1,
     day = 0,
     day_time_remaining = constants.day_length_ticks,
     pee_time_remaining = constants.pee_ticks,
@@ -146,15 +147,22 @@ end
 
 simulation.keypress = function(state, key)
   if not state.in_day then
+    if state.tick - state.stopped_tick < 60 * 1 then
+      return
+    end
 
     local bankrupt = state.money + state.money_today + state.dock_today - simulation.rent(state) < 0
 
     if bankrupt then
-      if key == 'r' then
+
+      if key == 't' then
         local new_state = simulation.create_state()
         for k, _ in pairs(state) do
           state[k] = new_state[k]
         end
+      end
+      if key == 'r' then
+        love.system.openURL("https://stallman.org/amazon.html")
       end
     else
       if key == 'w' then
@@ -249,6 +257,10 @@ simulation.update = function(state)
   if state.day_time_remaining == 0 then
     simulation.sounds.payday:play()
     state.in_day = false
+  end
+
+  if not state.in_day then
+    state.stopped_tick = state.tick
   end
 
 end

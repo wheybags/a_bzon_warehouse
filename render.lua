@@ -267,7 +267,8 @@ render._draw_inter_day = function(state)
   render_text_in_tile_centre(notice_str, render._tile_to_screen_coord({6,4}))
 
   if bankrupt then
-    render_option(state, "restart", render._tile_to_screen_coord({6,6}))
+    render_option(state, "try again", render._tile_to_screen_coord({6,6}))
+    render_option(state, "reasons not buy from amazon", render._tile_to_screen_coord({6,7}))
   else
     render_option(state, "walk to work", render._tile_to_screen_coord({6,6}))
   end
