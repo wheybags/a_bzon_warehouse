@@ -190,27 +190,42 @@ end
 
 render._draw_inter_day = function(state)
 
-  local bankrupt = state.money + state.money_today < 0
-
-  local money_str = string.format("Bank old: %s\nPay today: %s\nBank new: %s",
-    render._cents_to_money_str(state.money),
-    render._cents_to_money_str(state.money_today),
-    render._cents_to_money_str(state.money + state.money_today))
-
-  render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,2}))
-
+  local bankrupt = state.money + state.money_today - constants.rent < 0
   local notice_str = ""
+
+
+  if state.day == 0 then
+    render_text_in_tile_centre("insert logo here", render._tile_to_screen_coord({6,2}))
+
+    notice_str =
+      "Congratulations $name!\n\n" ..
+      "Your application has been accepted by the illustrious Bzon corporation of America!\n" ..
+      "You will be joining the team as a logistics services operator.\n" ..
+      "Please present yourself immediately for labour assignment\n" ..
+      "Fulfil orders from Bzon customers on time by pressing the correct keys.\n" ..
+      "Don't be late or your pay will be docked!\n\n" ..
+      "Geoff Bzon, CEO"
+  else
+    local money_str = string.format("Bank old: %s\nPay today: %s\nRent: %s\nBank new: %s",
+      render._cents_to_money_str(state.money),
+      render._cents_to_money_str(state.money_today),
+      render._cents_to_money_str(-constants.rent),
+      render._cents_to_money_str(state.money + state.money_today - constants.rent))
+
+    render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,3}))
+  end
+
 
   if bankrupt then
     notice_str = "You are bankrupt"
   end
 
-  render_text_in_tile_centre(notice_str, render._tile_to_screen_coord({6,3}))
+  render_text_in_tile_centre(notice_str, render._tile_to_screen_coord({6,4}))
 
   if bankrupt then
-    render_option(state, "restart", render._tile_to_screen_coord({6,4}))
+    render_option(state, "restart", render._tile_to_screen_coord({6,6}))
   else
-    render_option(state, "start", render._tile_to_screen_coord({6,4}))
+    render_option(state, "bus to work", render._tile_to_screen_coord({6,6}))
   end
 end
 

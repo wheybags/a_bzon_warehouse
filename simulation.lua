@@ -4,11 +4,6 @@ local constants = require("constants")
 
 local simulation = {}
 
-local item_pay = 25
-local wrong_item_dock = 50
-local missed_item_dock = 50
-
-
 
 simulation.create_state = function()
   math.randomseed(os.time())
@@ -20,7 +15,7 @@ simulation.create_state = function()
     day = 0,
     day_time_remaining = constants.day_length_ticks,
     position_str = '',
-    money = 20000,
+    money = constants.starting_money,
     money_today = 0,
     tick = 1,
   }
@@ -113,11 +108,11 @@ end
 
 simulation._deliver_item = function(state, item)
   if state.request == item then
-    state.money_today = state.money_today + item_pay
+    state.money_today = state.money_today + constants.item_pay
     simulation.generate_new_request(state)
   else
     simulation._on_error(state)
-    state.money_today = state.money_today - wrong_item_dock
+    state.money_today = state.money_today - constants.wrong_item_dock
   end
 
   state.position_str = ''
@@ -126,7 +121,7 @@ end
 simulation.keypress = function(state, key)
   if not state.in_day then
 
-    local bankrupt = state.money + state.money_today < 0
+    local bankrupt = state.money + state.money_today - constants.rent < 0
 
     if bankrupt then
       if key == 'r' then
@@ -136,14 +131,14 @@ simulation.keypress = function(state, key)
         end
       end
     else
-      if key == 's' then
+      if key == 'b' then
         state.in_day = true
         state.day = state.day + 1
-        state.money = state.money + state.money_today
         state.money_today = 0
         state.day_time_remaining = constants.day_length_ticks
 
         if state.day ~= 1 then
+          state.money = state.money + state.money_today - constants.rent
           simulation.generate_new_request(state)
         end
       end
@@ -187,7 +182,7 @@ simulation.update = function(state)
   state.request_time_remaining = state.request_time_remaining - 1
   if state.request_time_remaining == 0 then
     simulation._on_error(state)
-    state.money_today = state.money_today - missed_item_dock
+    state.money_today = state.money_today - constants.missed_item_dock
 
     simulation.generate_new_request(state)
   end

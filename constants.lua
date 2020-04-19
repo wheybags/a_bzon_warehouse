@@ -14,7 +14,14 @@ assert(constants.screen_height <= 720)
 
 
 constants.font_size = 15
-constants.day_length_ticks = 60 * 100
+constants.day_length_ticks = 60 * 60 * 3
+
+constants.item_pay = 25
+constants.wrong_item_dock = 50
+constants.missed_item_dock = 50
+
+constants.rent = 100 * 1
+constants.starting_money = 100 * 5
 
 
 return constants
