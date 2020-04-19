@@ -13,7 +13,7 @@ items.items_list =
           name="big",
           children =
           {
-            {name="pickaxe", children={}, item_code = 21},
+            {name="pick_axe", children={}, item_code = 21},
             {name="axe", children={}, item_code = 20},
             {name="hammer", children={}, item_code = 23},
             {name="saw", children={}, item_code = 16},
@@ -108,9 +108,9 @@ items.items_list =
           name="equipment",
           children =
           {
-            {name="stethoscope", children={}, item_code=110},
+            {name="stetho_scope", children={}, item_code=110},
             {name="crutch", children={}, item_code=113},
-            {name="first_aid_kit", children={}, item_code=102},
+            {name="first_aid", children={}, item_code=102},
             {name="syringe", children={}, item_code=93},
           },
         },
@@ -191,55 +191,57 @@ generate_item_positions_from_row_positions(items.positions)
 
 --print(serpent.block(items.positions, {comment=false}))
 
-local sd = 1.2 -- distance from shelf
+local generate_pos_table = function(sd)
+  local new_pos =
+  {
+    pos={5,9},
+    tools =
+    {
+      pos={4,1.5},
+      big = {pos={1.5, 0+sd}},
+      small = {pos={1.5, 3-sd}},
+    },
+    electronics =
+    {
+      pos={6,1.5},
+      computer = {pos={8.5, 0+sd}},
+      phone = {pos={8.5, 3-sd}},
+    },
+    kitchen =
+    {
+      pos={4,5.5},
+      utensils = {pos={1.5, 4+sd}},
+      appliances = {pos={1.5, 7-sd}},
+    },
+    medical =
+    {
+      pos={6,5.5},
+      drugs = {pos={8.5, 4+sd}},
+      equipment = {pos={8.5, 7-sd}},
+    },
+  }
 
-items.player_positions =
-{
-  pos={5,9},
-  tools =
-  {
-    pos={4,1.5},
-    big = {pos={1.5, 0+sd}},
-    small = {pos={1.5, 3-sd}},
-  },
-  electronics =
-  {
-    pos={6,1.5},
-    computer = {pos={8.5, 0+sd}},
-    phone = {pos={8.5, 3-sd}},
-  },
-  kitchen =
-  {
-    pos={4,5.5},
-    utensils = {pos={1.5, 4+sd}},
-    appliances = {pos={1.5, 7-sd}},
-  },
-  medical =
-  {
-    pos={6,5.5},
-    drugs = {pos={8.5, 4+sd}},
-    equipment = {pos={8.5, 7-sd}},
-  },
-}
+  local generate_player_row = function(positions, cat, subcat, offset_y)
 
-local generate_player_row = function(cat, subcat, offset_y)
-
-  for num, item in pairs(items.items_dict[cat][subcat].orig.children) do
-    items.player_positions[cat][subcat][item.name] = {pos={num-1 + items.positions[cat][subcat].pos[1], items.positions[cat][subcat].pos[2] + offset_y}}
+    for num, item in pairs(items.items_dict[cat][subcat].orig.children) do
+      positions[cat][subcat][item.name] = {pos={num-1 + items.positions[cat][subcat].pos[1], items.positions[cat][subcat].pos[2] + offset_y}}
+    end
   end
+
+  generate_player_row(new_pos, "tools", "big", sd)
+  generate_player_row(new_pos, "tools", "small", -sd)
+  generate_player_row(new_pos, "electronics", "computer", sd)
+  generate_player_row(new_pos, "electronics", "phone", -sd)
+  generate_player_row(new_pos, "kitchen", "utensils", sd)
+  generate_player_row(new_pos, "kitchen", "appliances", -sd)
+  generate_player_row(new_pos, "medical", "drugs", sd)
+  generate_player_row(new_pos, "medical", "equipment", -sd)
+
+  return new_pos
 end
 
+items.player_positions = generate_pos_table(1.5)
 
-generate_player_row("tools", "big", sd)
-generate_player_row("tools", "small", -sd)
-generate_player_row("electronics", "computer", sd)
-generate_player_row("electronics", "phone", -sd)
-generate_player_row("kitchen", "utensils", sd)
-generate_player_row("kitchen", "appliances", -sd)
-generate_player_row("medical", "drugs", sd)
-generate_player_row("medical", "equipment", -sd)
-
-
-print(serpent.block(items.player_positions, {comment=false}))
+items.label_positions = generate_pos_table(0.8)
 
 return items

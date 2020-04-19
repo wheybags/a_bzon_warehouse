@@ -7,8 +7,23 @@ simulation.create_state = function()
   return
   {
     request = 'pickaxe',
-    position_str = ''
+    position_str = '',
+    tick = 1,
   }
+end
+
+simulation.get_path_next_options = function(path)
+  local current = items.items_dict
+  for _, point in pairs(path) do
+    current = current[point]
+  end
+
+  local names = {}
+  for _, item in pairs (current.orig.children) do
+    table.insert(names, item.name)
+  end
+
+  return names
 end
 
 simulation.get_position_path = function(position_str)
@@ -58,6 +73,10 @@ simulation.keypress = function(state, key)
   state.position_str = new_position
 
   print(state.position_str)
+end
+
+simulation.update = function(state)
+  state.tick = state.tick + 1
 end
 
 return simulation

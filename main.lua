@@ -68,7 +68,7 @@ local fixed_update = function()
     return
   end
 
-
+  simulation.update(state)
 end
 
 
