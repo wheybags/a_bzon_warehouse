@@ -3,13 +3,21 @@ local items = require("items")
 
 local simulation = {}
 
+local item_pay = 25
+local wrong_item_dock = 50
+local missed_item_dock = 50
+
+
 simulation.create_state = function()
   math.randomseed(os.time())
   return
   {
     request = 'pick_axe',
+    request_time_remaining = 60 * 30,
+    day = 1,
     position_str = '',
-    score = 0,
+    money = 20000,
+    money_today = 0,
     tick = 1,
   }
 end
@@ -88,20 +96,24 @@ simulation.get_all_items_list = function()
   return r
 end
 
+simulation.generate_new_request = function(state)
+  local all_items = simulation.get_all_items_list()
+
+  state.request = all_items[math.random(#all_items)].name
+  state.request_time_remaining = math.floor(math.random(5, 10) * 60)
+end
+
 simulation._on_error = function(state)
 
 end
 
 simulation._deliver_item = function(state, item)
   if state.request == item then
-    state.score = state.score + 5
-
-    local all_items = simulation.get_all_items_list()
-    state.request = all_items[math.random(#all_items)].name
-
+    state.money_today = state.money_today + item_pay
+    simulation.generate_new_request(state)
   else
     simulation._on_error(state)
-    state.score = state.score - 10
+    state.money_today = state.money_today - wrong_item_dock
   end
 
   state.position_str = ''
@@ -135,6 +147,14 @@ end
 
 simulation.update = function(state)
   state.tick = state.tick + 1
+
+  state.request_time_remaining = state.request_time_remaining - 1
+  if state.request_time_remaining == 0 then
+    simulation._on_error(state)
+    state.money_today = state.money_today - missed_item_dock
+
+    simulation.generate_new_request(state)
+  end
 end
 
 simulation.get_item = function(path)

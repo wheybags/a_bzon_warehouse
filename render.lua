@@ -67,6 +67,19 @@ render._draw_icon = function(idx, pos)
   love.graphics.draw(s, x, y, 0, scale, scale)
 end
 
+render._cents_to_money_str = function(total_cents)
+  local cents_abs = math.abs(total_cents)
+  local sign = ""
+  if total_cents < 0 then
+    sign = "-"
+  end
+  local dollars = math.floor(cents_abs / 100)
+  local cents = cents_abs - (dollars * 100)
+
+  return sign .. "$" .. tostring(dollars) .. "." .. string.format("%02d", cents)
+end
+
+
 render._draw_gui = function(state)
   local left = (constants.screen_w_tiles - 2) * constants.tile_size
 
@@ -79,17 +92,14 @@ render._draw_gui = function(state)
 
   y = y + vertical_margin
 
-
-  local score_abs = math.abs(state.score)
-  local sign = ""
-  if state.score < 0 then
-    sign = "-"
-  end
-  local dollars = math.floor(score_abs / 100)
-  local cents = score_abs - dollars
   love.graphics.setColor(0, 0, 0)
-  local money_str = "   Money: " .. sign .. "$" .. tostring(dollars) .. "." .. string.format("%02d", cents)
-  love.graphics.print(money_str, left, y)
+  love.graphics.print( "   Bank: " .. render._cents_to_money_str(state.money), left, y)
+  y = y + constants.font_size
+
+  y = y + vertical_margin
+
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.print("   Today: " .. render._cents_to_money_str(state.money_today), left, y)
   y = y + constants.font_size
 
   y = y + vertical_margin
@@ -105,9 +115,13 @@ render._draw_gui = function(state)
   love.graphics.rectangle("fill", left + 0.5 * constants.tile_size, y, constants.tile_size, constants.tile_size)
 
   render._draw_icon(item_code, {left + 0.5 * constants.tile_size, y})
-  --love.graphics.setColor(1,1,1)
-  --love.graphics.draw(render.items[item_code], left + 0.5 * constants.tile_size, y, 0, sprite_scale, sprite_scale)
   y = y + constants.tile_size
+
+  y = y + vertical_margin
+
+  love.graphics.setColor(0,0,0)
+  love.graphics.print(string.format("        %d s left", math.floor(state.request_time_remaining/60)), left, y)
+  y = y + constants.font_size
 
   y = y + vertical_margin
 
