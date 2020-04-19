@@ -14,6 +14,8 @@ simulation.create_state = function()
     in_day = false,
     day = 0,
     day_time_remaining = constants.day_length_ticks,
+    pee_time_remaining = constants.pee_ticks,
+    in_toilet = 0,
     position_str = '',
     money = constants.starting_money,
     money_today = 0,
@@ -30,6 +32,10 @@ simulation.get_path_next_options = function(path)
   local names = {}
   for _, item in pairs (current.orig.children) do
     table.insert(names, item.name)
+  end
+
+  if #path == 0 then
+    table.insert(names, "bath_room")
   end
 
   return names
@@ -132,6 +138,7 @@ simulation.keypress = function(state, key)
       end
     else
       if key == 'b' then
+        state.in_toilet = 0
         state.in_day = true
         state.day = state.day + 1
         state.money_today = 0
@@ -153,6 +160,15 @@ simulation.keypress = function(state, key)
     return
   end
 
+  if state.in_toilet > 0 then
+    return
+  end
+
+  if key == 'b' and state.position_str == '' then
+    state.pee_time_remaining = constants.pee_ticks
+    state.in_toilet = constants.toilet_duration
+    return
+  end
 
   local new_position = state.position_str .. key
 
@@ -187,10 +203,21 @@ simulation.update = function(state)
     simulation.generate_new_request(state)
   end
 
+  if state.in_toilet == 0 then
+    state.pee_time_remaining = state.pee_time_remaining - 1
+  else
+    state.in_toilet = state.in_toilet - 1
+  end
+  if state.pee_time_remaining == 0 then
+    state.in_day = false
+    state.money_today = state.money_today - constants.pee_dock
+  end
+
   state.day_time_remaining = state.day_time_remaining - 1
   if state.day_time_remaining == 0 then
     state.in_day = false
   end
+
 end
 
 simulation.get_item = function(path)

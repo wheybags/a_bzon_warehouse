@@ -158,6 +158,21 @@ render._draw_gui = function(state)
 
   y = y + vertical_margin
 
+  local bladder_norm = (constants.pee_ticks - state.pee_time_remaining) / constants.pee_ticks
+  local bladder_percentage = math.floor(bladder_norm * 100)
+
+  love.graphics.setColor(0,0,0)
+  if bladder_percentage > 50 then
+    love.graphics.setColor(1,1,0)
+  end
+  if bladder_percentage > 80 then
+    love.graphics.setColor(1,0,0)
+  end
+  love.graphics.print(string.format("   Bladder: %d%%", bladder_percentage), left, y)
+  y = y + constants.font_size
+
+  y = y + vertical_margin
+
 
   love.graphics.setColor(1,1,1)
 end
@@ -206,13 +221,17 @@ render._draw_inter_day = function(state)
       "Don't be late or your pay will be docked!\n\n" ..
       "Geoff Bzon, CEO"
   else
-    local money_str = string.format("Bank old: %s\nPay today: %s\nRent: %s\nBank new: %s",
+    local money_str = string.format("Bank old: %s\nPay today: %s\nRent: %s\n\nBank new: %s",
       render._cents_to_money_str(state.money),
       render._cents_to_money_str(state.money_today),
       render._cents_to_money_str(-constants.rent),
       render._cents_to_money_str(state.money + state.money_today - constants.rent))
 
     render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,3}))
+  end
+
+  if state.pee_time_remaining == 0 then
+    notice_str = "You soiled yourself on the warehouse floor. You were sent home early with a pay dock"
   end
 
 
@@ -260,6 +279,16 @@ render.draw = function(state)
   local player_path = simulation.get_position_path(state.position_str)
   local player_pos = render._path_to_screen_coord(player_path, items.player_positions)
 
+  if state.in_toilet > 0 then
+    player_pos = render._tile_to_screen_coord(items.label_positions.bath_room.pos)
+  end
+
+  love.graphics.rectangle("line", player_pos[1], player_pos[2], constants.tile_size, constants.tile_size)
+
+
+  if state.in_toilet > 0 then
+    return
+  end
 
   local next_options = simulation.get_path_next_options(player_path)
 
@@ -276,7 +305,6 @@ render.draw = function(state)
     end
   end
 
-  love.graphics.rectangle("line", player_pos[1], player_pos[2], constants.tile_size, constants.tile_size)
 end
 
 return render

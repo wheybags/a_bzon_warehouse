@@ -219,6 +219,8 @@ local generate_pos_table = function(sd)
       drugs = {pos={8.5, 4+sd}},
       equipment = {pos={8.5, 7-sd}},
     },
+
+    bath_room = {pos = {10,9}},
   }
 
   local generate_player_row = function(positions, cat, subcat, offset_y)
