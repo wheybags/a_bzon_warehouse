@@ -19,6 +19,7 @@ simulation.create_state = function()
     position_str = '',
     money = constants.starting_money,
     money_today = 0,
+    dock_today = 0,
     tick = 1,
   }
 end
@@ -118,7 +119,7 @@ simulation._deliver_item = function(state, item)
     simulation.generate_new_request(state)
   else
     simulation._on_error(state)
-    state.money_today = state.money_today - constants.wrong_item_dock
+    state.dock_today = state.dock_today - constants.wrong_item_dock
   end
 
   state.position_str = ''
@@ -127,7 +128,7 @@ end
 simulation.keypress = function(state, key)
   if not state.in_day then
 
-    local bankrupt = state.money + state.money_today - constants.rent < 0
+    local bankrupt = state.money + state.money_today + state.dock_today - constants.rent < 0
 
     if bankrupt then
       if key == 'r' then
@@ -138,16 +139,18 @@ simulation.keypress = function(state, key)
       end
     else
       if key == 'b' then
+        if state.day ~= 1 then
+          state.money = state.money + state.money_today + state.dock_today - constants.rent
+          simulation.generate_new_request(state)
+        end
+
         state.in_toilet = 0
+        state.pee_time_remaining = constants.pee_ticks
         state.in_day = true
         state.day = state.day + 1
         state.money_today = 0
+        state.dock_today = 0
         state.day_time_remaining = constants.day_length_ticks
-
-        if state.day ~= 1 then
-          state.money = state.money + state.money_today - constants.rent
-          simulation.generate_new_request(state)
-        end
       end
     end
 
@@ -198,7 +201,7 @@ simulation.update = function(state)
   state.request_time_remaining = state.request_time_remaining - 1
   if state.request_time_remaining == 0 then
     simulation._on_error(state)
-    state.money_today = state.money_today - constants.missed_item_dock
+    state.dock_today = state.dock_today - constants.missed_item_dock
 
     simulation.generate_new_request(state)
   end
@@ -210,7 +213,7 @@ simulation.update = function(state)
   end
   if state.pee_time_remaining == 0 then
     state.in_day = false
-    state.money_today = state.money_today - constants.pee_dock
+    state.dock_today = state.dock_today - constants.pee_dock
   end
 
   state.day_time_remaining = state.day_time_remaining - 1

@@ -132,7 +132,13 @@ render._draw_gui = function(state)
   y = y + vertical_margin
 
   love.graphics.setColor(0, 0, 0)
-  love.graphics.print("   Today: " .. render._cents_to_money_str(state.money_today), left, y)
+  love.graphics.print("   Pay: " .. render._cents_to_money_str(state.money_today), left, y)
+  y = y + constants.font_size
+
+  y = y + vertical_margin
+
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.print("   Dock: " .. render._cents_to_money_str(state.dock_today), left, y)
   y = y + constants.font_size
 
   y = y + vertical_margin
@@ -205,7 +211,7 @@ end
 
 render._draw_inter_day = function(state)
 
-  local bankrupt = state.money + state.money_today - constants.rent < 0
+  local bankrupt = state.money + state.money_today + state.dock_today - constants.rent < 0
   local notice_str = ""
 
 
@@ -218,25 +224,26 @@ render._draw_inter_day = function(state)
       "You will be joining the team as a logistics services operator.\n" ..
       "Please present yourself immediately for labour assignment\n" ..
       "Fulfil orders from Bzon customers on time by pressing the correct keys.\n" ..
-      "Don't be late or your pay will be docked!\n\n" ..
+      "Don't be late or your pay will be docked!\n\n"..
+      "Keep those shareholder returns alive!\n" ..
       "Geoff Bzon, CEO"
   else
-    local money_str = string.format("Bank old: %s\nPay today: %s\nRent: %s\n\nBank new: %s",
+    local money_str = string.format("Bank old: %s\nPay today: %s\nPay docked:%s\nRent: %s\n\nBank new: %s",
       render._cents_to_money_str(state.money),
       render._cents_to_money_str(state.money_today),
+      render._cents_to_money_str(state.dock_today),
       render._cents_to_money_str(-constants.rent),
-      render._cents_to_money_str(state.money + state.money_today - constants.rent))
+      render._cents_to_money_str(state.money + state.money_today + state.dock_today - constants.rent))
 
-    render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,3}))
+    render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,2}))
+  end
+
+  if bankrupt then
+    notice_str = notice_str .. "You are bankrupt. Game over. But don't worry, the shareholder returns are just fine!\n\n"
   end
 
   if state.pee_time_remaining == 0 then
-    notice_str = "You soiled yourself on the warehouse floor. You were sent home early with a pay dock"
-  end
-
-
-  if bankrupt then
-    notice_str = "You are bankrupt"
+    notice_str = notice_str .. "You soiled yourself on the warehouse floor.\nYour pay was docked and you were sent home.\n\nTOP TIP: Keep an eye on the bladder meter at the right\n"
   end
 
   render_text_in_tile_centre(notice_str, render._tile_to_screen_coord({6,4}))
