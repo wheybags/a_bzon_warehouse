@@ -4,10 +4,12 @@ local items = require("items")
 local simulation = {}
 
 simulation.create_state = function()
+  math.randomseed(os.time())
   return
   {
-    request = 'pickaxe',
+    request = 'pick_axe',
     position_str = '',
+    score = 0,
     tick = 1,
   }
 end
@@ -55,28 +57,92 @@ simulation.get_position_path = function(position_str)
   return path
 end
 
+simulation.get_all_items_dict = function()
+
+  local all_items = {}
+
+  local r
+  r = function(entry)
+    if entry.item_code then
+      all_items[entry.name] = entry
+    end
+
+    for _, item in pairs(entry.children) do
+      r(item)
+    end
+  end
+
+  r(items.items_list)
+
+  return all_items
+end
+
+simulation.get_all_items_list = function()
+  local all_items_dict = simulation.get_all_items_dict()
+
+  local r = {}
+  for _, val in pairs(all_items_dict) do
+    table.insert(r, val)
+  end
+
+  return r
+end
+
+simulation._on_error = function(state)
+
+end
+
+simulation._deliver_item = function(state, item)
+  if state.request == item then
+    state.score = state.score + 5
+
+    local all_items = simulation.get_all_items_list()
+    state.request = all_items[math.random(#all_items)].name
+
+  else
+    simulation._on_error(state)
+    state.score = state.score - 10
+  end
+
+  state.position_str = ''
+end
 
 simulation.keypress = function(state, key)
+  local current_item = simulation.get_item(simulation.get_position_path(state.position_str))
+  if key == 'd' and current_item then
+    simulation._deliver_item(state, current_item)
+    return
+  end
+
+
   local new_position = state.position_str .. key
 
   if string.len(key) ~= 1 then
     new_position = ''
   else
     local path = simulation.get_position_path(new_position)
-    print("AAA", #path)
-
     if #path == 0 then
       new_position = ''
     end
   end
 
-  state.position_str = new_position
+  if new_position == '' then
+    simulation._on_error(state)
+  end
 
-  print(state.position_str)
+  state.position_str = new_position
 end
 
 simulation.update = function(state)
   state.tick = state.tick + 1
+end
+
+simulation.get_item = function(path)
+  if #path == 3 then
+    return path[3]
+  end
+
+  return nil
 end
 
 return simulation

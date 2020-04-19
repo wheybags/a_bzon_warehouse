@@ -25,7 +25,7 @@ items.items_list =
           children =
           {
             {name="wrench", children={}, item_code = 7},
-            {name="screwdriver", children={}, item_code = 5},
+            {name="screw_driver", children={}, item_code = 5},
             {name="pliers", children={}, item_code = 9},
             {name="brush", children={}, item_code = 11},
           }
@@ -81,8 +81,8 @@ items.items_list =
           children =
           {
             {name="kettle", children={}, item_code=125},
-            {name="blender", children={}, item_code=137},
-            {name="toaster", children={}, item_code=138},
+            {name="blend_er", children={}, item_code=137},
+            {name="toast_er", children={}, item_code=138},
             {name="coffee_machine", children={}, item_code = 139},
           }
         },
@@ -194,7 +194,7 @@ generate_item_positions_from_row_positions(items.positions)
 local generate_pos_table = function(sd)
   local new_pos =
   {
-    pos={5,9},
+    pos={5,8},
     tools =
     {
       pos={4,1.5},
