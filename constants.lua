@@ -16,18 +16,23 @@ assert(constants.screen_height <= 720)
 constants.font_size = 15
 constants.big_font_size = 70
 
-constants.day_length_ticks = 60 * 60 * 2
+constants.day_length_ticks = 60 * 60 * 1
 constants.pee_per_day = 3
 constants.pee_ticks = math.floor(constants.day_length_ticks / constants.pee_per_day)
 constants.toilet_duration = 60 * 3
 
-constants.item_pay = 25
-constants.wrong_item_dock = 50
-constants.missed_item_dock = 50
-constants.pee_dock = 100
+local money_scale = 100
 
-constants.rent = 100 * 1
-constants.starting_money = 100 * 5
+constants.starting_money = 100 * 5 * money_scale
+
+constants.item_pay = 25 * money_scale
+constants.wrong_item_dock = 50 * money_scale
+constants.missed_item_dock = 50 * money_scale
+constants.pee_dock = 100 * money_scale
+
+constants.rent = 100 * money_scale
+constants.rent_hike_per_day = 20 * money_scale
+
 
 constants.error_display_ticks = 60 * 2
 

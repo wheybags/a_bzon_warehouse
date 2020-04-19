@@ -4,6 +4,15 @@ local constants = require("constants")
 
 local simulation = {}
 
+simulation.setup = function()
+  simulation.sounds =
+  {
+    payday = love.audio.newSource("/sfx/201159__kiddpark__cash-register.mp3", "stream"),
+    error = love.audio.newSource("/sfx/142608__autistic-lucario__error.wav", "stream"),
+    toilet = love.audio.newSource("/sfx/274448__lorenzgillner__toilet-flushing.wav", "stream"),
+    soil = love.audio.newSource("/sfx/242004__junkfood2121__fart-01.flac", "stream"),
+  }
+end
 
 simulation.create_state = function()
   math.randomseed(os.time())
@@ -111,13 +120,14 @@ simulation.generate_new_request = function(state)
   local all_items = simulation.get_all_items_list()
 
   state.request = all_items[math.random(#all_items)].name
-  state.request_time_remaining = math.floor(math.random(5, 10) * 60)
+  state.request_time_remaining = 10 * 60
 end
 
 simulation._on_error = function(state, message, dock)
   state.error_text = message
   state.error_dock = dock
   state.error_ticks = constants.error_display_ticks
+  simulation.sounds.error:play()
 end
 
 simulation._deliver_item = function(state, item)
@@ -125,6 +135,7 @@ simulation._deliver_item = function(state, item)
     state.money_today = state.money_today + constants.item_pay
     state.delivered = true
     simulation.generate_new_request(state)
+    simulation.sounds.payday:play()
   else
     simulation._on_error(state, "Wrong item", -constants.wrong_item_dock)
     state.dock_today = state.dock_today - constants.wrong_item_dock
@@ -136,7 +147,7 @@ end
 simulation.keypress = function(state, key)
   if not state.in_day then
 
-    local bankrupt = state.money + state.money_today + state.dock_today - constants.rent < 0
+    local bankrupt = state.money + state.money_today + state.dock_today - simulation.rent(state) < 0
 
     if bankrupt then
       if key == 'r' then
@@ -146,9 +157,10 @@ simulation.keypress = function(state, key)
         end
       end
     else
-      if key == 'b' then
+      if key == 'w' then
+        play_music()
         if state.day ~= 0 then
-          state.money = state.money + state.money_today + state.dock_today - constants.rent
+          state.money = state.money + state.money_today + state.dock_today - simulation.rent(state)
           simulation.generate_new_request(state)
 
           state.day_time_remaining = constants.day_length_ticks
@@ -163,6 +175,7 @@ simulation.keypress = function(state, key)
         state.error_dock = 0
         state.error_text = ''
         state.error_ticks = 0
+        state.position_str = ''
       end
     end
 
@@ -182,6 +195,7 @@ simulation.keypress = function(state, key)
   if key == 'b' and state.position_str == '' then
     state.pee_time_remaining = constants.pee_ticks
     state.in_toilet = constants.toilet_duration
+    simulation.sounds.toilet:play()
     return
   end
 
@@ -204,6 +218,7 @@ simulation.update = function(state)
 
 
   if not state.in_day then
+    stop_music()
     return
   end
 
@@ -223,6 +238,7 @@ simulation.update = function(state)
   if state.pee_time_remaining == 0 then
     state.in_day = false
     state.dock_today = state.dock_today - constants.pee_dock
+    simulation.sounds.soil:play()
   end
 
   if state.error_ticks > 0 then
@@ -231,9 +247,14 @@ simulation.update = function(state)
 
   state.day_time_remaining = state.day_time_remaining - 1
   if state.day_time_remaining == 0 then
+    simulation.sounds.payday:play()
     state.in_day = false
   end
 
+end
+
+simulation.rent = function(state)
+  return constants.rent + constants.rent_hike_per_day * (state.day-1)
 end
 
 simulation.get_item = function(path)

@@ -106,8 +106,8 @@ render._draw_gui = function(state)
 
   y = y + vertical_margin
 
-  local start_h = 7
-  local end_h = 22
+  local start_h = 5
+  local end_h = 23
 
   local time_norm = (constants.day_length_ticks-state.day_time_remaining) / constants.day_length_ticks
   local decimal_hour_24 = time_norm * (end_h-start_h) + start_h
@@ -223,7 +223,7 @@ end
 
 render._draw_inter_day = function(state)
 
-  local bankrupt = state.money + state.money_today + state.dock_today - constants.rent < 0
+  local bankrupt = state.money + state.money_today + state.dock_today - simulation.rent(state) < 0
   local notice_str = ""
 
 
@@ -249,9 +249,9 @@ render._draw_inter_day = function(state)
       render._cents_to_money_str(state.money),
       render._cents_to_money_str(state.money_today),
       render._cents_to_money_str(state.dock_today),
-      render._cents_to_money_str(-constants.rent),
-      render._cents_to_money_str(state.money_today + state.dock_today - constants.rent),
-      render._cents_to_money_str(state.money + state.money_today + state.dock_today - constants.rent))
+      render._cents_to_money_str(-simulation.rent(state)),
+      render._cents_to_money_str(state.money_today + state.dock_today - simulation.rent(state)),
+      render._cents_to_money_str(state.money + state.money_today + state.dock_today - simulation.rent(state)))
 
     render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,2}))
   end
@@ -269,7 +269,7 @@ render._draw_inter_day = function(state)
   if bankrupt then
     render_option(state, "restart", render._tile_to_screen_coord({6,6}))
   else
-    render_option(state, "bus to work", render._tile_to_screen_coord({6,6}))
+    render_option(state, "walk to work", render._tile_to_screen_coord({6,6}))
   end
 end
 

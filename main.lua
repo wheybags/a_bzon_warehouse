@@ -22,14 +22,15 @@ end
 local setup = function()
   state = simulation.create_state()
 
-  --music = love.audio.newSource("/sfx/2019-12-09_-_Retro_Forest_-_David_Fesliyan.mp3", "stream")
-  --music:setLooping(true)
+  music = love.audio.newSource("/sfx/8Bit Bossa.mp3", "stream")
+  music:setLooping(true)
   --
   --play_music()
 end
 
 function love.load()
   render.setup()
+  simulation.setup()
 
   setup()
 end

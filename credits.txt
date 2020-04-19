@@ -1,0 +1,12 @@
+GFX:
+    https://kenney.nl/assets/sokoban
+    https://kenney.nl/assets/generic-items
+
+SFX:
+    https://freesound.org/people/lorenzgillner/sounds/274448/
+    https://freesound.org/people/Autistic%20Lucario/sounds/142608/
+    https://freesound.org/people/kiddpark/sounds/201159/
+    https://freesound.org/people/junkfood2121/sounds/242004/
+
+Music:
+    https://opengameart.org/content/bossa-nova
