@@ -12,6 +12,8 @@ render.setup = function()
     render.items[i] = love.graphics.newImage(path)
   end
 
+  render.items[200] = love.graphics.newImage("gfx/playerFace_dark.png")
+
   render.font = love.graphics.newFont("gfx/Kenney Future Narrow.ttf", constants.font_size)
   render.font_big = love.graphics.newFont("gfx/Kenney Future Narrow.ttf", constants.big_font_size)
   love.graphics.setFont(render.font)
@@ -48,6 +50,7 @@ render._draw_icon = function(idx, pos)
     [90] = 2,
     [93] = 1.5,
     [16] = 0.85,
+    [200]=3,
   }
 
   local scale = (scale_override[idx] or 1) * sprite_scale
@@ -299,7 +302,8 @@ render.draw = function(state)
     player_pos = render._tile_to_screen_coord(items.label_positions.bath_room.pos)
   end
 
-  love.graphics.rectangle("line", player_pos[1], player_pos[2], constants.tile_size, constants.tile_size)
+  --love.graphics.rectangle("line", player_pos[1], player_pos[2], constants.tile_size, constants.tile_size)
+  render._draw_icon(200, player_pos)
 
 
   if state.in_toilet == 0 then
