@@ -17,6 +17,8 @@ render.setup = function()
   render.font = love.graphics.newFont("gfx/Kenney Future Narrow.ttf", constants.font_size)
   render.font_big = love.graphics.newFont("gfx/Kenney Future Narrow.ttf", constants.big_font_size)
   love.graphics.setFont(render.font)
+
+  render.bzon_logo = love.graphics.newImage("gfx/bzon_logo.png")
 end
 
 render._tile_to_screen_coord = function(pos)
@@ -226,7 +228,11 @@ render._draw_inter_day = function(state)
 
 
   if state.day == 0 then
-    render_text_in_tile_centre("insert logo here", render._tile_to_screen_coord({6,2}))
+    local scale = 0.6
+
+    local x = constants.screen_width / 2 - render.bzon_logo:getWidth()*scale/2
+
+    love.graphics.draw(render.bzon_logo, x, 25, 0, scale, scale)
 
     notice_str =
       "Congratulations Applicant!\n\n" ..
