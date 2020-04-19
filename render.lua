@@ -93,6 +93,39 @@ render._draw_gui = function(state)
   y = y + vertical_margin
 
   love.graphics.setColor(0, 0, 0)
+
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.print( "   Day: " .. tostring(state.day), left, y)
+  y = y + constants.font_size
+
+  y = y + vertical_margin
+
+  local start_h = 7
+  local end_h = 22
+
+  local time_norm = (constants.day_length_ticks-state.day_time_remaining) / constants.day_length_ticks
+  local decimal_hour_24 = time_norm * (end_h-start_h) + start_h
+
+  local hour_24 = math.floor(decimal_hour_24)
+  local normalised_minute = decimal_hour_24 - hour_24
+
+  local minute = math.floor(normalised_minute * 60)
+  local hour_12 = hour_24
+  if hour_12 > 12 then
+    hour_12 = hour_12 - 12
+  end
+
+  local am_pm = "AM"
+  if decimal_hour_24 > 12 then
+    am_pm = "PM"
+  end
+
+  love.graphics.print(string.format("   Time: %d:%02d %s", hour_12, minute, am_pm) , left, y)
+  y = y + constants.font_size
+
+  y = y + vertical_margin
+
+  love.graphics.setColor(0, 0, 0)
   love.graphics.print( "   Bank: " .. render._cents_to_money_str(state.money), left, y)
   y = y + constants.font_size
 
@@ -129,7 +162,50 @@ render._draw_gui = function(state)
   love.graphics.setColor(1,1,1)
 end
 
+local render_text_in_tile_centre = function(str, option_pos)
+  local text = love.graphics.newText(render.font, str)
+  local x = option_pos[1] + constants.tile_size/2 - text:getWidth()/2
+  local y = option_pos[2] + constants.tile_size/2 - text:getHeight()/2
+
+  love.graphics.print(str, x, y)
+end
+
+local render_option = function(state, option, option_pos)
+  local human_name = option:gsub("_", "\n")
+
+  local text = love.graphics.newText(render.font, human_name)
+  local x = option_pos[1] + constants.tile_size/2 - text:getWidth()/2
+  local y = option_pos[2] + constants.tile_size/2 - text:getHeight()/2
+
+  local hotkey = human_name:sub(1,1)
+  local rest = human_name:sub(2,string.len(human_name))
+
+  local hotkey_color = {1,1,1}
+  if (state.tick % 60) < 30 then
+    hotkey_color = {1,0,0}
+  end
+
+  love.graphics.print({hotkey_color, hotkey, {1,1,1}, rest}, x, y)
+end
+
+render._draw_inter_day = function(state)
+
+  local money_str = string.format("Bank old: %s\nPay today: %s\nBank new: %s",
+    render._cents_to_money_str(state.money),
+    render._cents_to_money_str(state.money_today),
+    render._cents_to_money_str(state.money + state.money_today))
+
+  render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,3}))
+
+  render_option(state, "start", render._tile_to_screen_coord({6,4}))
+end
+
 render.draw = function(state)
+  if not state.in_day then
+    render._draw_inter_day(state)
+    return
+  end
+
   love.graphics.clear(0.2,0.2,0.2)
 
   render._draw_gui(state)
@@ -159,33 +235,15 @@ render.draw = function(state)
   local next_options = simulation.get_path_next_options(player_path)
 
 
-  local render_option = function(option, option_pos)
-    local human_name = option:gsub("_", "\n")
-
-    local text = love.graphics.newText(render.font, human_name)
-    local x = option_pos[1] + constants.tile_size/2 - text:getWidth()/2
-    local y = option_pos[2] + constants.tile_size/2 - text:getHeight()/2
-
-    local hotkey = human_name:sub(1,1)
-    local rest = human_name:sub(2,string.len(human_name))
-
-    local hotkey_color = {1,1,1}
-    if (state.tick % 60) < 30 then
-      hotkey_color = {1,0,0}
-    end
-
-    love.graphics.print({hotkey_color, hotkey, {1,1,1}, rest}, x, y)
-  end
-
   if simulation.get_item(player_path) then
-    render_option("deliver", render._tile_to_screen_coord({5,9}))
+    render_option(state, "deliver", render._tile_to_screen_coord({5,9}))
   else
     for _, option in pairs(next_options) do
       local option_path = {unpack(player_path)}
       table.insert(option_path, option)
 
       local option_pos = render._path_to_screen_coord(option_path, items.label_positions)
-      render_option(option, option_pos)
+      render_option(state, option, option_pos)
     end
   end
 

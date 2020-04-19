@@ -14,5 +14,7 @@ assert(constants.screen_height <= 720)
 
 
 constants.font_size = 15
+constants.day_length_ticks = 60 * 100
+
 
 return constants

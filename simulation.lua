@@ -1,4 +1,5 @@
 local items = require("items")
+local constants = require("constants")
 
 
 local simulation = {}
@@ -8,13 +9,16 @@ local wrong_item_dock = 50
 local missed_item_dock = 50
 
 
+
 simulation.create_state = function()
   math.randomseed(os.time())
   return
   {
     request = 'pick_axe',
-    request_time_remaining = 60 * 30,
-    day = 1,
+    request_time_remaining = 60 * 20,
+    in_day = false,
+    day = 0,
+    day_time_remaining = constants.day_length_ticks,
     position_str = '',
     money = 20000,
     money_today = 0,
@@ -120,6 +124,23 @@ simulation._deliver_item = function(state, item)
 end
 
 simulation.keypress = function(state, key)
+  if not state.in_day then
+
+    if key == 's' then
+      state.in_day = true
+      state.day = state.day + 1
+      state.money = state.money + state.money_today
+      state.money_today = 0
+      state.day_time_remaining = constants.day_length_ticks
+
+      if state.day ~= 1 then
+        simulation.generate_new_request(state)
+      end
+    end
+
+    return
+  end
+
   local current_item = simulation.get_item(simulation.get_position_path(state.position_str))
   if key == 'd' and current_item then
     simulation._deliver_item(state, current_item)
@@ -146,6 +167,10 @@ simulation.keypress = function(state, key)
 end
 
 simulation.update = function(state)
+  if not state.in_day then
+    return
+  end
+
   state.tick = state.tick + 1
 
   state.request_time_remaining = state.request_time_remaining - 1
@@ -154,6 +179,11 @@ simulation.update = function(state)
     state.money_today = state.money_today - missed_item_dock
 
     simulation.generate_new_request(state)
+  end
+
+  state.day_time_remaining = state.day_time_remaining - 1
+  if state.day_time_remaining == 0 then
+    state.in_day = false
   end
 end
 
