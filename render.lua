@@ -38,6 +38,35 @@ end
 
 local sprite_scale = 0.4
 
+render._draw_icon = function(idx, pos)
+  local scale_override =
+  {
+    [96] = 2,
+    [97] = 2,
+    [89] = 2,
+    [90] = 2,
+    [93] = 1.5,
+    [16] = 0.85,
+  }
+
+  local scale = (scale_override[idx] or 1) * sprite_scale
+
+  local left = pos[1]
+  local top = pos[2]
+
+  local s = render.items[idx]
+
+  local s_w = s:getWidth() * scale
+  local s_h = s:getHeight() * scale
+
+  local x = left + constants.tile_size / 2 - s_w / 2
+  local y = top + constants.tile_size / 2 - s_h / 2
+
+
+  love.graphics.setColor(1,1,1)
+  love.graphics.draw(s, x, y, 0, scale, scale)
+end
+
 render._draw_gui = function(state)
   local left = (constants.screen_w_tiles - 2) * constants.tile_size
 
@@ -74,8 +103,10 @@ render._draw_gui = function(state)
   local items_lookup = simulation.get_all_items_dict()
   local item_code = items_lookup[state.request].item_code
   love.graphics.rectangle("fill", left + 0.5 * constants.tile_size, y, constants.tile_size, constants.tile_size)
-  love.graphics.setColor(1,1,1)
-  love.graphics.draw(render.items[item_code], left + 0.5 * constants.tile_size, y, 0, sprite_scale, sprite_scale)
+
+  render._draw_icon(item_code, {left + 0.5 * constants.tile_size, y})
+  --love.graphics.setColor(1,1,1)
+  --love.graphics.draw(render.items[item_code], left + 0.5 * constants.tile_size, y, 0, sprite_scale, sprite_scale)
   y = y + constants.tile_size
 
   y = y + vertical_margin
@@ -101,7 +132,7 @@ render.draw = function(state)
         local item_code = item_data.item_code
 
         love.graphics.rectangle("line", pos[1], pos[2], constants.tile_size, constants.tile_size)
-        love.graphics.draw(render.items[item_code], pos[1], pos[2], 0, sprite_scale, sprite_scale)
+        render._draw_icon(item_code, pos)
 
       end
     end
