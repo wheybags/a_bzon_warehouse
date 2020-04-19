@@ -1,5 +1,6 @@
 local items = require("items")
 local constants = require("constants")
+local simulation = require("simulation")
 
 local render = {}
 
@@ -12,49 +13,51 @@ render.setup = function()
   end
 end
 
-render.draw = function()
+render._tile_to_screen_coord = function(pos)
+  local result = {unpack(pos)}
 
-  local item_width = 70
+  result[1] = result[1] * constants.tile_size
+  result[2] = result[2] * constants.tile_size
+
+  return result
+end
+
+render._path_to_screen_coord = function(path, positions)
+  local tmp = positions
+
+  for _, entry in pairs(path) do
+    tmp = tmp[entry]
+  end
+
+  assert(tmp.pos)
+  return render._tile_to_screen_coord(tmp.pos)
+end
+
+render.draw = function(state)
+
   local sprite_scale = 0.4
 
-  local gap = item_width * 1.3
+  for _, category_data in pairs(items.items_list.children) do
+    local category = category_data.name
 
-  local x_positions = {0,constants.screen_width - item_width*4}
+    for _, sub_category_data in pairs(category_data.children) do
+      local sub_category = sub_category_data.name
 
+      for _, item_data in pairs(sub_category_data.children) do
+        local pos = render._path_to_screen_coord({category, sub_category, item_data.name}, items.positions)
+        local item_code = item_data.item_code
 
-  -- 1 XXXX
-  --
-  -- 2 XXXX
-  -- 3 XXXX
-  --
-  -- 4 XXXX
+        love.graphics.rectangle("line", pos[1], pos[2], constants.tile_size, constants.tile_size)
+        love.graphics.draw(render.items[item_code], pos[1], pos[2], 0, sprite_scale, sprite_scale)
 
-  local y_positions =
-  {
-    0,
-    item_width + gap,
-    item_width + gap + item_width,
-    item_width + gap + item_width + item_width + gap,
-  }
-
-
-  for category, category_data in pairs(items.items) do
-    for sub_category, sub_category_data in pairs(category_data) do
-      local x = items.positions[category][sub_category][1]+1
-      local y = items.positions[category][sub_category][2]+1
-
-      x = x_positions[x]
-      y = y_positions[y]
-
-      for item_key, item_code in pairs(sub_category_data) do
-        love.graphics.rectangle("line", x, y, item_width, item_width)
-        love.graphics.draw(render.items[item_code], x, y, 0, sprite_scale, sprite_scale)
-
-        x = x + item_width
       end
     end
   end
 
+  local player_path = simulation.get_position_path(state.position_str)
+  local player_pos = render._path_to_screen_coord(player_path, items.player_positions)
+
+  love.graphics.rectangle("line", player_pos[1], player_pos[2], constants.tile_size, constants.tile_size)
 end
 
 return render

@@ -1,4 +1,9 @@
+serpent = require("serpent")
+
+
 local render = require("render")
+local simulation = require("simulation")
+
 
 local state
 
@@ -15,7 +20,7 @@ end
 
 
 local setup = function()
-  render.setup()
+  state = simulation.create_state()
 
   --music = love.audio.newSource("/sfx/2019-12-09_-_Retro_Forest_-_David_Fesliyan.mp3", "stream")
   --music:setLooping(true)
@@ -24,11 +29,13 @@ local setup = function()
 end
 
 function love.load()
+  render.setup()
+
   setup()
 end
 
 function love.draw()
-  render.draw()
+  render.draw(state)
 end
 
 function love.resize()
@@ -36,7 +43,7 @@ function love.resize()
 end
 
 function love.keypressed(key)
-
+  simulation.keypress(state, key)
 end
 
 
