@@ -126,15 +126,26 @@ end
 simulation.keypress = function(state, key)
   if not state.in_day then
 
-    if key == 's' then
-      state.in_day = true
-      state.day = state.day + 1
-      state.money = state.money + state.money_today
-      state.money_today = 0
-      state.day_time_remaining = constants.day_length_ticks
+    local bankrupt = state.money + state.money_today < 0
 
-      if state.day ~= 1 then
-        simulation.generate_new_request(state)
+    if bankrupt then
+      if key == 'r' then
+        local new_state = simulation.create_state()
+        for k, _ in pairs(state) do
+          state[k] = new_state[k]
+        end
+      end
+    else
+      if key == 's' then
+        state.in_day = true
+        state.day = state.day + 1
+        state.money = state.money + state.money_today
+        state.money_today = 0
+        state.day_time_remaining = constants.day_length_ticks
+
+        if state.day ~= 1 then
+          simulation.generate_new_request(state)
+        end
       end
     end
 

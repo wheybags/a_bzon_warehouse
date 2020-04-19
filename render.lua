@@ -190,14 +190,28 @@ end
 
 render._draw_inter_day = function(state)
 
+  local bankrupt = state.money + state.money_today < 0
+
   local money_str = string.format("Bank old: %s\nPay today: %s\nBank new: %s",
     render._cents_to_money_str(state.money),
     render._cents_to_money_str(state.money_today),
     render._cents_to_money_str(state.money + state.money_today))
 
-  render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,3}))
+  render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,2}))
 
-  render_option(state, "start", render._tile_to_screen_coord({6,4}))
+  local notice_str = ""
+
+  if bankrupt then
+    notice_str = "You are bankrupt"
+  end
+
+  render_text_in_tile_centre(notice_str, render._tile_to_screen_coord({6,3}))
+
+  if bankrupt then
+    render_option(state, "restart", render._tile_to_screen_coord({6,4}))
+  else
+    render_option(state, "start", render._tile_to_screen_coord({6,4}))
+  end
 end
 
 render.draw = function(state)
