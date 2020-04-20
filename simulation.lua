@@ -120,7 +120,16 @@ end
 simulation.generate_new_request = function(state)
   local all_items = simulation.get_all_items_list()
 
-  state.request = all_items[math.random(#all_items)].name
+  local new_request
+  while true do
+    new_request = all_items[math.random(#all_items)].name
+
+    if new_request ~= state.request then
+      break
+    end
+  end
+
+  state.request = new_request
   state.request_time_remaining = 10 * 60
 end
 
