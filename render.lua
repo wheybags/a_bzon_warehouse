@@ -241,8 +241,8 @@ render._draw_inter_day = function(state)
     table.insert(notice_str,
       "Congratulations Applicant!\n\n" ..
       "Your application has been accepted by the illustrious Bzon corporation of America!\n" ..
-      "You will be joining the team as a logistics services operator.\n" ..
-      "Please present yourself immediately for labour assignment\n" ..
+      "You will be joining the team as a supplementary logistics services operator\n"..
+      "for the holiday season. Please present yourself immediately for labour assignment.\n" ..
       "Fulfil orders from Bzon customers on time by pressing the correct keys.\n" ..
       "Don't be late or your pay will be docked!\n\n"..
       "Keep those shareholder returns alive!\n" ..
@@ -266,7 +266,7 @@ render._draw_inter_day = function(state)
       "Best of luck with your future endeavours,\n"..
       "Geoff Bzon, CEO")
 
-    render_option(state, "get deported", render._tile_to_screen_coord({6,6}))
+    render_option(state, "get in the bread line", render._tile_to_screen_coord({6,6}))
 
 
 
@@ -290,31 +290,31 @@ render._draw_inter_day = function(state)
     if not bankrupt then
       if state.day == 1 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "Whew, first day on the job. I sure hope it goes well so I dont get deported!\nI just need to stick it out for 9 more days and I'll get to apply for citizenship.\n\n")
+        table.insert(notice_str, "Whew, first day on the job. I sure hope it goes well!\nI got hired during the christmas rush, so only 9 more days until vacation.\n\n")
       elseif state.day == 2 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "Ok, this is hard work! Only 8 more days to go before my citizenship application though!\n\n")
+        table.insert(notice_str, "Ok, this is hard work! Only 8 more days to go before christmas!\n\n")
       elseif state.day == 3 then
         table.insert(notice_str, {1,1,1})
         table.insert(notice_str, "whoo-ee my legs sure get sore after a long shift.\n 7 more days, let's do this!\n\n")
       elseif state.day == 4 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "Man, I sure get thirsty doing all that sprinting.\nIf I kept hydrated I'd need more bathroom breaks though...\n6 days to to!\n\n")
+        table.insert(notice_str, "Man, I sure get thirsty doing all that sprinting.\nIf I kept hydrated I'd need more bathroom breaks though...\n6 days to to before christmas!\n\n")
       elseif state.day == 5 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "I heard some o' the guys talking about a union.\nI dunno, I don't want to piss off the boss...\n5 days more and I can apply for citizenship!\n\n")
+        table.insert(notice_str, "I heard some o' the guys talking about a union.\nI dunno, I don't want to piss off the boss...\n5 days more and I can have a well earned break!\n\n")
       elseif state.day == 6 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "\n\n")
+        table.insert(notice_str, "My supervisor isn't happy with the amount of\nbathroom breaks I've been taking...\n4 more days until christmas\n\n")
       elseif state.day == 7 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "\n\n")
+        table.insert(notice_str, "Joanne and Toby got fired today. Not a nice atmosphere.\n3 more days\n\n")
       elseif state.day == 8 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "\n\n")
+        table.insert(notice_str, "Some of the guys here are using a lot of meds form the vending machines...\n2 more days\n\n")
       elseif state.day == 9 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "Christ, this is hard work, but only one more day to go! Citizenship here I come baby!\n\n")
+        table.insert(notice_str, "Christ, this is hard work, but only one more day to go! Christmas here I come baby!\n\n")
       end
     end
 
