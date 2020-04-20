@@ -19,6 +19,7 @@ render.setup = function()
   love.graphics.setFont(render.font)
 
   render.bzon_logo = love.graphics.newImage("gfx/bzon_logo.png")
+  render.fired = love.graphics.newImage("gfx/fired.png")
 end
 
 render._tile_to_screen_coord = function(pos)
@@ -196,11 +197,13 @@ render._draw_gui = function(state)
 end
 
 local render_text_in_tile_centre = function(str, option_pos)
+
   local text = love.graphics.newText(render.font, str)
   local x = option_pos[1] + constants.tile_size/2 - text:getWidth()/2
   local y = option_pos[2] + constants.tile_size/2 - text:getHeight()/2
 
-  love.graphics.print(str, x, y)
+  love.graphics.draw(text, x, y)
+  --love.graphics.print(str, x, y)
 end
 
 local render_option = function(state, option, option_pos)
@@ -224,17 +227,18 @@ end
 render._draw_inter_day = function(state)
 
   local bankrupt = state.money + state.money_today + state.dock_today - simulation.rent(state) < 0
-  local notice_str = ""
+  local notice_str = {}
+
+  local won = state.day == 10 and not bankrupt
 
 
   if state.day == 0 then
     local scale = 0.6
-
     local x = constants.screen_width / 2 - render.bzon_logo:getWidth()*scale/2
-
     love.graphics.draw(render.bzon_logo, x, 25, 0, scale, scale)
 
-    notice_str =
+    table.insert(notice_str, {0.97,0.64,0.1})
+    table.insert(notice_str,
       "Congratulations Applicant!\n\n" ..
       "Your application has been accepted by the illustrious Bzon corporation of America!\n" ..
       "You will be joining the team as a logistics services operator.\n" ..
@@ -242,7 +246,32 @@ render._draw_inter_day = function(state)
       "Fulfil orders from Bzon customers on time by pressing the correct keys.\n" ..
       "Don't be late or your pay will be docked!\n\n"..
       "Keep those shareholder returns alive!\n" ..
-      "Geoff Bzon, CEO"
+      "Geoff Bzon, CEO")
+  elseif won then
+    local scale = 0.6
+    local x = constants.screen_width / 2 - render.bzon_logo:getWidth()*scale/2
+    love.graphics.draw(render.bzon_logo, x, 25, 0, scale, scale)
+
+
+    table.insert(notice_str, {0.97,0.64,0.1})
+    table.insert(notice_str,
+      "Great news team!\n\n" ..
+      "Our engineers in the automation department have been hard at work on an\n" ..
+      "innovative new logistics solution.\n" ..
+      "We are deploying their new Bzo-bot system in your assigned labour zone.\n" ..
+      "Shareholder returns from this move are expected to skyrocket!\n\n" ..
+      "Unfortunately however, this does mean that there will\n"..
+      "no longer be a need for our valued Bzon logistics team members.\n" ..
+      "It's been a wild journey, but our hands are tied.\n\n" ..
+      "Best of luck with your future endeavours,\n"..
+      "Geoff Bzon, CEO")
+
+    render_option(state, "get deported", render._tile_to_screen_coord({6,6}))
+
+
+
+    love.graphics.draw(render.fired, 600, 400, 0, 1, 1)
+
   else
     local money_str = string.format("Day: %s\nBank old: %s\nPay today: %s\nPay docked:%s\nRent: %s\n\nTotal Diff: %s\nBank new: %s",
       state.day,
@@ -256,22 +285,60 @@ render._draw_inter_day = function(state)
     render_text_in_tile_centre(money_str, render._tile_to_screen_coord({6,2}))
   end
 
-  if bankrupt then
-    notice_str = notice_str .. "You are bankrupt. Game over.\nBut don't worry, the shareholder returns are just fine!\n\n"
+  if not won then
+
+    if not bankrupt then
+      if state.day == 1 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "Whew, first day on the job. I sure hope it goes well so I dont get deported!\nI just need to stick it out for 9 more days and I'll get to apply for citizenship.\n\n")
+      elseif state.day == 2 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "Ok, this is hard work! Only 8 more days to go before my citizenship application though!\n\n")
+      elseif state.day == 3 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "whoo-ee my legs sure get sore after a long shift.\n 7 more days, let's do this!\n\n")
+      elseif state.day == 4 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "Man, I sure get thirsty doing all that sprinting.\nIf I kept hydrated I'd need more bathroom breaks though...\n6 days to to!\n\n")
+      elseif state.day == 5 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "I heard some o' the guys talking about a union.\nI dunno, I don't want to piss off the boss...\n5 days more and I can apply for citizenship!\n\n")
+      elseif state.day == 6 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "\n\n")
+      elseif state.day == 7 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "\n\n")
+      elseif state.day == 8 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "\n\n")
+      elseif state.day == 9 then
+        table.insert(notice_str, {1,1,1})
+        table.insert(notice_str, "Christ, this is hard work, but only one more day to go! Citizenship here I come baby!\n\n")
+      end
+    end
+
+
+    if bankrupt then
+      table.insert(notice_str, {1,1,1})
+      table.insert(notice_str, "You are bankrupt. Game over.\nBut don't worry, the shareholder returns are just fine!\n\n")
+    end
+
+    if state.pee_time_remaining == 0 then
+      table.insert(notice_str, {0.97,0.64,0.1})
+      table.insert(notice_str,"You soiled yourself on the warehouse floor.\nYour pay was docked and you were sent home.\n\nBZON TOP TIP: Keep an eye on the bladder meter at the right\n")
+    end
+
+
+    if bankrupt then
+      render_option(state, "try again", render._tile_to_screen_coord({6,6}))
+      render_option(state, "reasons not buy from amazon", render._tile_to_screen_coord({6,7}))
+    else
+      render_option(state, "walk to work", render._tile_to_screen_coord({6,6}))
+    end
   end
 
-  if state.pee_time_remaining == 0 then
-    notice_str = notice_str .. "You soiled yourself on the warehouse floor.\nYour pay was docked and you were sent home.\n\nTOP TIP: Keep an eye on the bladder meter at the right\n"
-  end
-
-  render_text_in_tile_centre(notice_str, render._tile_to_screen_coord({6,4}))
-
-  if bankrupt then
-    render_option(state, "try again", render._tile_to_screen_coord({6,6}))
-    render_option(state, "reasons not buy from amazon", render._tile_to_screen_coord({6,7}))
-  else
-    render_option(state, "walk to work", render._tile_to_screen_coord({6,6}))
-  end
+ render_text_in_tile_centre(notice_str, render._tile_to_screen_coord({6,4}))
 end
 
 render.draw = function(state)

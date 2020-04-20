@@ -153,6 +153,15 @@ simulation.keypress = function(state, key)
 
     local bankrupt = state.money + state.money_today + state.dock_today - simulation.rent(state) < 0
 
+    local won = state.day == 10 and not bankrupt
+
+    if won then
+      if key == 'g' then
+        love.event.quit(0)
+      end
+      return
+    end
+
     if bankrupt then
 
       if key == 't' then
