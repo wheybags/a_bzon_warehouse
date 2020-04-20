@@ -241,8 +241,8 @@ render._draw_inter_day = function(state)
     table.insert(notice_str,
       "Congratulations Applicant!\n\n" ..
       "Your application has been accepted by the illustrious Bzon corporation of America!\n" ..
-      "You will be joining the team as a supplementary logistics services operator\n"..
-      "for the holiday season. Please present yourself immediately for labour assignment.\n" ..
+      "You will be joining the team as a logistics services operator for our new warehouse\n"..
+      "in your region. Please present yourself immediately for labour assignment.\n" ..
       "Fulfil orders from Bzon customers on time by pressing the correct keys.\n" ..
       "Don't be late or your pay will be docked!\n\n"..
       "Keep those shareholder returns alive!\n" ..
@@ -266,8 +266,12 @@ render._draw_inter_day = function(state)
       "Best of luck with your future endeavours,\n"..
       "Geoff Bzon, CEO")
 
-    render_option(state, "get in the bread line", render._tile_to_screen_coord({6,6}))
 
+    render_option(state, "get back in the bread line", render._tile_to_screen_coord({6,6}))
+
+
+    local final_money = "you finished with " .. render._cents_to_money_str(state.money + state.money_today + state.dock_today - simulation.rent(state))
+    render_text_in_tile_centre(final_money, render._tile_to_screen_coord({6,9}))
 
 
     love.graphics.draw(render.fired, 600, 400, 0, 1, 1)
@@ -290,7 +294,7 @@ render._draw_inter_day = function(state)
     if not bankrupt then
       if state.day == 1 then
         table.insert(notice_str, {1,1,1})
-        table.insert(notice_str, "Whew, first day on the job. I sure hope it goes well!\nI got hired during the christmas rush, so only 9 more days until vacation.\n\n")
+        table.insert(notice_str, "Whew, a job at last!\nI got hired just before christmas, so only 9 more days until vacation.\n\n")
       elseif state.day == 2 then
         table.insert(notice_str, {1,1,1})
         table.insert(notice_str, "Ok, this is hard work! Only 8 more days to go before christmas!\n\n")

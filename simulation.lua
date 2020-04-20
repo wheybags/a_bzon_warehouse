@@ -166,7 +166,10 @@ simulation.keypress = function(state, key)
 
     if won then
       if key == 'g' then
-        love.event.quit(0)
+        local new_state = simulation.create_state()
+        for k, _ in pairs(state) do
+          state[k] = new_state[k]
+        end
       end
       return
     end
