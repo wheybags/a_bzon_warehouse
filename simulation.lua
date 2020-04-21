@@ -10,7 +10,7 @@ simulation.setup = function()
     payday = love.audio.newSource("/sfx/201159__kiddpark__cash-register.mp3", "stream"),
     error = love.audio.newSource("/sfx/142608__autistic-lucario__error.wav", "stream"),
     toilet = love.audio.newSource("/sfx/274448__lorenzgillner__toilet-flushing.wav", "stream"),
-    soil = love.audio.newSource("/sfx/242004__junkfood2121__fart-01.flac", "stream"),
+    soil = love.audio.newSource("/sfx/242004__junkfood2121__fart-01.mp3", "stream"),
   }
 end
 
